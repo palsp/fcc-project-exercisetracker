@@ -25,36 +25,116 @@ exports.getUsers = (req , res , next) => {
 
 exports.addExercise = (req,res,next) => {
   const userId = req.body.userId
-  console.log('inputId',userId)
   const updatedDes = req.body.description
   const duration = req.body.duration
   const updatedDuration = parseInt(duration)
   const date  = req.body.date
-  console.log(date)
   let updatedDate;
-  if(date === null){
+  if(!date){
     updatedDate = new Date()
   }else{
     updatedDate = new Date(date)
   }
  
-
+  let currentAdded;
   User.findById(userId)
   .then(user => {
-    console.log(user)
-    user.exercise.push({
+    //console.log(user)
+    currentAdded = {
       description : updatedDes,
       duration : updatedDuration,
       date : updatedDate.toDateString()
-    })
+    }
+    user.exercise.push(currentAdded)
     return user.save()
   })
   .then(result => {
-    console.log(result)
-    res.send(result)
+    res.send({
+      _id : result._id,
+      username : result.username,
+      date : currentAdded.date,
+      duration : currentAdded.duration,
+      description : currentAdded.description
+
+    })
   })
   .catch(err => {
     console.log(err)
   })
 
 }
+
+exports.getLog = (req , res , next ) => {
+   const userId = req.query.userId;
+   const logFrom = req.query.from
+   const to = req.query.to
+   const limit = req.query.limit
+   console.log('id' , userId)
+   console.log('from',logFrom ,'to' ,to , 'limit' ,limit)
+   let rv =[];
+   let currentUser;
+   User.findById(userId)
+   .then(user => {
+     currentUser = user
+     if(logFrom  && to  ){
+       console.log('yes')
+      const fromDate = new Date(logFrom);
+      const toDate = new Date(to);
+      rv =  user.exercise.filter( i => {
+          return new Date(i.date) >= fromDate && new Date(i.date) <= toDate})
+       res.send({
+            _id : currentUser._id,
+            username : currentUser.username,
+            "from" : fromDate.toDateString(),
+            to : toDate.toDateString(),
+            count : rv.length,
+            log : rv.map(i=>{
+              return {
+                  description : i.description,
+                  date : i.date,
+                  duration : i.duration
+              }
+            })
+      })
+    }else if(limit){
+       for(let i = 0 ; i < parseInt(limit) ; i++){
+        rv.push(user.exercise[i])
+       }
+
+       res.send({
+         _id : currentUser._id,
+            username : currentUser.username,
+            count : rv.length,
+            log : rv.map(i=>{
+              return {
+                  description : i.description,
+                  date : i.date,
+                  duration : i.duration
+              }
+            })
+
+       })  
+     }else{
+        res.send({
+         _id : currentUser._id,
+            username : currentUser.username,
+            count : currentUser.exercise.length,
+            log : currentUser.exercise.map(i=>{
+              return {
+                  description : i.description,
+                  date : i.date,
+                  duration : i.duration
+              }
+            })
+
+       }) 
+
+     }
+
+       });
+     
+
+}
+
+
+

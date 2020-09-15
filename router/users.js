@@ -8,4 +8,6 @@ router.post('/api/exercise/new-user' , userController.createUser)
 router.get('/api/exercise/users' , userController.getUsers)
 
 router.post('/api/exercise/add' , userController.addExercise)
+
+router.get('/api/exercise/log' ,userController.getLog )
 module.exports = router
