@@ -49,7 +49,8 @@ const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
 
-mongoose.connect("mongodb+srv://palsp:liulaks123@cluster0.saaou.mongodb.net/fcc?retryWrites=true&w=majority")
+// connect to your database !!!
+mongoose.connect()
 .then(res => {
   console.log("connected")
   app.listen(process.env.PORT || 5000)
