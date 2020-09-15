@@ -1,11 +1,11 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
-
+const userRoute = require('./router/users')
 const cors = require('cors')
 
 const mongoose = require('mongoose')
-mongoose.connect(process.env.MLAB_URI || 'mongodb://localhost/exercise-track' )
+
 
 app.use(cors())
 
@@ -14,6 +14,8 @@ app.use(bodyParser.json())
 
 
 app.use(express.static('public'))
+
+app.use(userRoute);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
@@ -45,4 +47,13 @@ app.use((err, req, res, next) => {
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
+})
+
+mongoose.connect("mongodb+srv://palsp:liulaks123@cluster0.saaou.mongodb.net/fcc?retryWrites=true&w=majority")
+.then(res => {
+  console.log("connected")
+  app.listen(process.env.PORT || 5000)
+})
+.catch(err => {
+  console.log(err)
 })
